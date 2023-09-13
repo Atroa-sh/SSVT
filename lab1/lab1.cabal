@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Lab1_Kacper
       Lib
   other-modules:
       Paths_lab1
