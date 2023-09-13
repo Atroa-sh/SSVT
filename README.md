@@ -1,1 +1,1 @@
-Add your files to lab<number of lab>/src we will connect the fine into a one folder before submission
+Add your files to labX (X being number of lab)/src/LabX_(your name) we will connect the fine into a one folder before submission
