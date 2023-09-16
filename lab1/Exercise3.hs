@@ -1,3 +1,5 @@
+-- Time spent: 30 minutes
+
 module Exercise3 where
 
 -- import Data.List
