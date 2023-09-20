@@ -1,3 +1,5 @@
+module Exercise8 where
+
 import Data.List
 import System.Random
 import Test.QuickCheck
@@ -20,14 +22,14 @@ subSlices [] = []
 subSlices (x:xs) = [x] : map (x:) (subSlices xs)
 
 -- Helper function to check if the sum of a list is a prime
-sumIsPrime :: [Integer] -> Bool
-sumIsPrime n = prime $ sum n
+prop_sumIsPrime :: [Integer] -> Bool
+prop_sumIsPrime n = prime $ sum n
 
 -- Function that iterates over all lists of a list and returns all lists
 -- that are counterexamples
 allCounterExamples :: [[Integer]] -> [[Integer]]
 allCounterExamples [] = []
-allCounterExamples (x:xs) = if not (sumIsPrime x) then x : allCounterExamples xs else allCounterExamples xs
+allCounterExamples (x:xs) = if not (prop_sumIsPrime x) then x : allCounterExamples xs else allCounterExamples xs
 
 counterExamples :: [([Integer], Integer)]
 counterExamples =
