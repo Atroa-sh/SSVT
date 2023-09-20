@@ -17,6 +17,8 @@ isDerangement x y
     | otherwise = _isDerangement x y
 
 
+-- we can check a bunch of properties before doing most of the work and eliminate a lot of incorrect inputs
+-- thats why the outer function do checks and inner does actual calculation 
 _isDerangement :: Eq a => [a] -> [a] -> Bool
 _isDerangement (x:xs) (y:ys)
   | x == y = False
