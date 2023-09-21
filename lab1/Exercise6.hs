@@ -212,4 +212,6 @@ cnf f = cnf' (nnf f)
 cnf is also a nnf form. We can call nnf first to reduce cnf to only necessary functions.
 dist function stands for distribution law. Foldr allows us to accumulate result of distribution in cases when we have a
 disjunction of more than 2 forms.
+
+Time spent 2,5h
 -}
