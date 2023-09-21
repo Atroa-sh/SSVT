@@ -7,10 +7,11 @@ import Data.ByteString (filter)
 import Test.QuickCheck
 -- import Lecture1
 
+--Point 1
 sameElems :: (Eq a) => [a] -> [a] -> Bool
 sameElems xs ys = null (xs \\ ys) && null (ys \\ xs)
 {-
-It can be tested by calling sort and comparing the arrays however this would require input to be Ord which doesnt fit 
+It can be tested by calling sort and comparing the arrays however this would require input to be Ord which doesn't fit 
 isDerangement definition
 -}
 
@@ -32,14 +33,15 @@ _isDerangement (x:xs) (y:ys)
   | length xs == 0 && length ys == 0 = True
   | otherwise = _isDerangement xs ys
 
-
+--Point 2
 deran:: Int -> [[Int]]
 deran n = Data.List.filter (isDerangement [0..n-1]) (Data.List.permutations [0..n-1])
 {-
 I found this implementation to be the simplest, it is dependant on out isDerangement function
-but even if it wasnt we would have to test it anyways
+but even if it wasn't we would have to test it anyways
 -}
 
+--Point 3
 
 prop_reverseInput :: Eq a => [a] -> [a] -> Bool
 prop_reverseInput a b = isDerangement a b == isDerangement b a
@@ -51,7 +53,7 @@ prop_sameElements :: Eq a => [a] -> [a] -> Bool
 prop_sameElements a b = if not (sameElems a b) then isDerangement a b == False else True
 
 {-
-Two latter properties are also checked at the start of the function. Reflective is fairly obious.
+Two latter properties are also checked at the start of the function. Reflective is fairly obvious.
 At first I thought that transitive relation will also be kept however its not true for arrays longer than 3
 -}
 
@@ -69,13 +71,11 @@ main = do
   putStrLn (if prop_sameElements [0,1,2] [3,4,5] then "Passed_transitive" else "Failed_transitive")
   putStrLn (if prop_sameElements [0,1,2,3] [1,0,3,2] then "Passed_transitive" else "Failed_transitive")
 
-{-
-I
--}
 
 
 
 {-
+Point 4.
 order of properties:
 both inputs need to be lists
 reflective relation
@@ -86,13 +86,14 @@ no element in those lists can occupy same index
 -}
 
 {-
+Point 5
 can we test it automatically?
-problem is that if we were to automate it we would need a function that would generate derengements and we 
-would be certain of its corectness. How would we be certain of that? Maybe buy checking if all of its outputs are derangements?
+problem is that if we were to automate it we would need a function that would generate derangements and we 
+would be certain of its correctness. How would we be certain of that? Maybe buy checking if all of its outputs are derangements?
 that would then require that would correctly check if lists are derangements and cycle repeats
 
 another issue is that if we were to tests it would be nice to do it for all possible inputs. 
-there is a countable infinity of them so this is not feasale
+there is a countable infinity of them so this is not feasible
 
 indication of time spent: 5h unfortunately I found description to be fairly vague which caused me to go back a lot on code that I've written previously
 -}
