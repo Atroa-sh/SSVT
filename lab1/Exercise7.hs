@@ -2,6 +2,7 @@ import SetOrd
 import Test.QuickCheck
 import Data.List (sort, intercalate,nub)
 import Data.Text.Internal.Fusion.Size (lowerBound)
+import Data.List.NonEmpty (NonEmpty(..), toList)
 
 type Name = Int
 
@@ -32,17 +33,24 @@ instance Show Form where
     show (Equiv f1 f2) = "Equiv (" ++ show f1 ++ ") (" ++ show f2 ++ ")"
 
 
+listOf2 :: Gen a -> Gen [a]
+listOf2 gen = sized $ \n ->
+  do k <- chooseInt (2,2 `max` n)
+     vectorOf k gen
+
 instance Arbitrary Form where
     arbitrary = do
         name <- arbitrary
+        -- noEmpty <- getNonEmpty <$> arbitrary 
         frequency
             [ (1, return (Prop name))
             , (2, Neg <$> arbitrary)
-            , (2, Cnj <$> listOf arbitrary)
-            , (2, Dsj <$> listOf arbitrary)
+            , (2, Cnj <$> (listOf2 arbitrary))
+            , (2, Dsj <$> (listOf2 arbitrary))
             , (2, Impl <$> arbitrary <*> arbitrary)
             , (2, Equiv <$> arbitrary <*> arbitrary)
             ]
+
 
 
 test = Cnj [Neg (Prop 1), Neg (Prop 1)] 
