@@ -1,6 +1,6 @@
 import SetOrd
 import Test.QuickCheck
-import Data.List (sort, intercalate)
+import Data.List (sort, intercalate,nub)
 
 type Name = Int
 
@@ -44,7 +44,7 @@ instance Arbitrary Form where
             ]
 
 
-test = Cnj [Prop 1, Neg (Prop 1)] 
+test = Cnj [Neg (Prop 1), Neg (Prop 1)] 
 
 -- lower bound number of distinct elements
 -- upper bound <= numSubFormulas
@@ -63,10 +63,46 @@ prop_sub_extraction form =
     let extractedSub = sub form
     in all (`isSubFormOf` form) (setToList extractedSub)
 
-numSubFormulas :: Form -> Int
+numSubFormulas :: Form -> Int  -- upper bound
 numSubFormulas (Prop _) = 1
 numSubFormulas (Neg f) = 1 + numSubFormulas f
 numSubFormulas (Cnj forms) = 1 + sum (map numSubFormulas forms)
 numSubFormulas (Dsj forms) = 1 + sum (map numSubFormulas forms)
 numSubFormulas (Impl f1 f2) = 1 + numSubFormulas f1 + numSubFormulas f2
 numSubFormulas (Equiv f1 f2) = 1 + numSubFormulas f1 + numSubFormulas f2
+
+sub2 :: Form -> [Form]  --rekdup
+sub2 (Prop x) = [Prop x]
+sub2 (Neg f) = nub $ Neg f : sub2 f
+sub2 (Cnj forms) = nub $ Cnj forms : concatMap sub2 forms
+sub2 (Dsj forms) = nub $ Dsj forms : concatMap sub2 forms
+sub2 (Impl f1 f2) = nub $ Impl f1 f2 : sub2 f1 ++ sub2 f2
+sub2 (Equiv f1 f2) = nub $ Equiv f1 f2 : sub2 f1 ++ sub2 f2
+
+numDistinctSubFormulas :: Form -> Int     --rekdup
+numDistinctSubFormulas = length . nub . sub2
+
+
+prop_sub_count :: Form -> Bool --upper bound check
+prop_sub_count form =
+    let subformulas = setToList (sub form)
+        numSub = numSubFormulas form
+    in length subformulas <= numSub 
+
+--prop_sub_vs_prop :: Form -> Bool
+--prop_sub_vs_prop form =
+--    let numSub = numSubFormulas form
+--        numProps = countPropElements form
+--   in numSub > numProps
+
+prop_distinct_sub_vs_prop :: Form -> Bool --lower bound
+prop_distinct_sub_vs_prop form =
+    let subformulas = setToList (sub form)
+        distinctSubformulas = nub subformulas  -- Remove duplicates of subformulas
+        propCount = length $ filter isProp subformulas -- filter props from subformulas
+    in length distinctSubformulas >= propCount
+
+-- Helper function to check if a formula is a Prop element
+isProp :: Form -> Bool
+isProp (Prop _) = True
+isProp _ = False
