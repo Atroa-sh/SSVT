@@ -3,24 +3,29 @@
 module Exercise2 where
 
 import Data.List
-import Data.List (permutations)
 import Data.ByteString (filter)
 import Test.QuickCheck
 -- import Lecture1
 
+sameElems :: (Eq a) => [a] -> [a] -> Bool
+sameElems xs ys = null (xs \\ ys) && null (ys \\ xs)
+{-
+It can be tested by calling sort and comparing the arrays however this would require input to be Ord which doesnt fit 
+isDerangement definition
+-}
 
-isDerangement :: (Eq a, Ord a) => [a] -> [a] -> Bool
+isDerangement :: Eq a => [a] -> [a] -> Bool
 isDerangement x y
     | length x /= length y = False
-    | sort x /= sort y = False
+    | not (sameElems x y) = False
     | x == [] = False
     | otherwise = _isDerangement x y
-    -- do we need to check if numbers are in 0..n-1 range
-    -- are lists with duplicates a valid input
+{-
+we can check a bunch of properties before doing most of the work and eliminate a lot of incorrect inputs
+thats why the outer function do checks and inner does actual calculation 
+-}
 
 
--- we can check a bunch of properties before doing most of the work and eliminate a lot of incorrect inputs
--- thats why the outer function do checks and inner does actual calculation 
 _isDerangement :: Eq a => [a] -> [a] -> Bool
 _isDerangement (x:xs) (y:ys)
   | x == y = False
@@ -30,33 +35,43 @@ _isDerangement (x:xs) (y:ys)
 
 deran:: Int -> [[Int]]
 deran n = Data.List.filter (isDerangement [0..n-1]) (Data.List.permutations [0..n-1])
+{-
+I found this implementation to be the simplest, it is dependant on out isDerangement function
+but even if it wasnt we would have to test it anyways
+-}
 
 
-prop_reverseInput :: Ord a => [a] -> [a] -> Bool
+prop_reverseInput :: Eq a => [a] -> [a] -> Bool
 prop_reverseInput a b = isDerangement a b == isDerangement b a
 
-prop_transitive :: Ord a => [a] -> [a] -> [a] -> Bool
-prop_transitive a b c = if (a /= c && isDerangement a b == True && isDerangement b c == True) then isDerangement a c == True else True
+prop_unequal :: Eq a => [a] -> [a] -> Bool
+prop_unequal a b = if (length a) /= (length b) then isDerangement a b == False else True
 
-prop_unequal :: Ord a => [a] -> [a] -> Bool
-prop_unequal a b = if (length a) /= (length b) then isDerangement a b == False else True 
+prop_sameElements :: Eq a => [a] -> [a] -> Bool
+prop_sameElements a b = if not (sameElems a b) then isDerangement a b == False else True
 
-prop_sameElements :: Ord a => [a] -> [a] -> Bool
-prop_sameElements a b = if (sort a) /= (sort b) then isDerangement a b == False else True
+{-
+Two latter properties are also checked at the start of the function. Reflective is fairly obious.
+At first I thought that transitive relation will also be kept however its not true for arrays longer than 3
+-}
 
 main :: IO ()
 main = do
   quickCheck (prop_reverseInput :: [Int] -> [Int] -> Bool)
   quickCheck (prop_sameElements :: [Int] -> [Int] -> Bool)
   quickCheck (prop_unequal :: [Int] -> [Int] -> Bool)
-  quickCheck (prop_transitive :: [Int] -> [Int] -> [Int] -> Bool)
 
-  quickCheck $ forAll [[1,2,3],[2,3,1], [], [1,2,3,4]] prop_reverseInput
-  -- putStrLn (if isDerangement [0,1,2] [1,0,2] then "Passed1" else "Failed1")
-  -- putStrLn (if isDerangement [0,1,2,3] [1,0,2] then "Passed2" else "Failed2")
-  -- putStrLn (if isDerangement ([]::[Int]) ([]::[Int]) then "Passed3" else "Failed3")
-  -- putStrLn (if isDerangement [0,1,2] [3,4,5] then "Passed4" else "Failed4")
-  -- putStrLn (if isDerangement [0,1,2,3] [1,0,3,2] then "Passed5" else "Failed5")
+
+
+  putStrLn (if prop_reverseInput [0,1,2] [1,0,2] then "Passed_reverse" else "Failed_reverse")
+  putStrLn (if prop_unequal [0,1,2,3] [1,0,2] then "Passed_unequal" else "Failed_unequal")
+  putStrLn (if prop_unequal [0,1,2] [1,0,2] then "Passed_unequal" else "Failed_unequal")
+  putStrLn (if prop_sameElements [0,1,2] [3,4,5] then "Passed_transitive" else "Failed_transitive")
+  putStrLn (if prop_sameElements [0,1,2,3] [1,0,3,2] then "Passed_transitive" else "Failed_transitive")
+
+{-
+I
+-}
 
 
 
@@ -79,5 +94,5 @@ that would then require that would correctly check if lists are derangements and
 another issue is that if we were to tests it would be nice to do it for all possible inputs. 
 there is a countable infinity of them so this is not feasale
 
-indication of time spent: 5h
+indication of time spent: 5h unfortunately I found description to be fairly vague which caused me to go back a lot on code that I've written previously
 -}
