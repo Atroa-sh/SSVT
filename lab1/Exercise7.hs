@@ -32,6 +32,11 @@ instance Show Form where
     show (Impl f1 f2) = "Impl (" ++ show f1 ++ ") (" ++ show f2 ++ ")"
     show (Equiv f1 f2) = "Equiv (" ++ show f1 ++ ") (" ++ show f2 ++ ")"
 
+listOf2 :: Gen a -> Gen [a]
+listOf2 gen = do
+  n <- getSize
+  k <- choose (2,2)
+  vectorOf k gen
 
 listOf2 :: Gen a -> Gen [a]
 listOf2 gen = sized $ \n ->
@@ -43,17 +48,15 @@ instance Arbitrary Form where
         name <- arbitrary
         -- noEmpty <- getNonEmpty <$> arbitrary 
         frequency
-            [ (1, return (Prop name))
-            , (2, Neg <$> arbitrary)
-            , (2, Cnj <$> (listOf2 arbitrary))
-            , (2, Dsj <$> (listOf2 arbitrary))
-            , (2, Impl <$> arbitrary <*> arbitrary)
-            , (2, Equiv <$> arbitrary <*> arbitrary)
+            [ (5, return (Prop name))
+            , (1, Neg <$> arbitrary)
+            , (1, Cnj <$> listOf2 arbitrary)
+            , (1, Dsj <$> listOf2 arbitrary)
+            , (1, Impl <$> arbitrary <*> arbitrary)
+            , (1, Equiv <$> arbitrary <*> arbitrary)
             ]
 
-
-
-test = Cnj [Neg (Prop 1), Neg (Prop 1)] 
+test = Cnj [Neg (Prop 1), Neg (Prop 1), Prop 2]
 
 -- lower bound number of distinct elements
 -- upper bound <= numSubFormulas
@@ -67,8 +70,8 @@ isSubFormOf :: Form -> Form -> Bool
 isSubFormOf subForm mainForm =
     subForm `elem` setToList (sub mainForm)
 
-prop_sub_extraction :: Form -> Bool
-prop_sub_extraction form =
+prop_subExtraction :: Form -> Bool
+prop_subExtraction form =
     let extractedSub = sub form
     in all (`isSubFormOf` form) (setToList extractedSub)
 
@@ -81,19 +84,19 @@ numSubFormulas (Impl f1 f2) = 1 + numSubFormulas f1 + numSubFormulas f2
 numSubFormulas (Equiv f1 f2) = 1 + numSubFormulas f1 + numSubFormulas f2
 
 
-prop_sub_count :: Form -> Bool --upper bound check
-prop_sub_count form =
+prop_subCount :: Form -> Bool --upper bound check
+prop_subCount form =
     let subformulas = setToList (sub form)
         numSub = numSubFormulas form
-    in length subformulas <= numSub 
+    in length subformulas <= numSub
 
-
-prop_distinct_sub_vs_prop :: Form -> Bool --lower bound check
-prop_distinct_sub_vs_prop form =
+prop_distinctSubVsProp :: Form -> Bool --lower bound check
+prop_distinctSubVsProp form =
     let subformulas = setToList (sub form)
         distinctSubformulas = nub subformulas  -- Remove duplicates of subformulas
         propCount = length $ filter isProp subformulas -- filter props from subformulas
     in length distinctSubformulas >= propCount
+
 
 --check for props in formula
 isProp :: Form -> Bool
@@ -118,7 +121,7 @@ prop_nsub :: Form -> Bool
 prop_nsub form =
     let distinctSubCount = nsub form
         upperBoundCount = numSubFormulas form
-        subformulas = setToList (sub form)
+        subformulas = sub2 form
         distinctSubformulas = nub subformulas  -- Remove duplicates of subformulas
         lowerBoundCount = length $ filter isProp subformulas -- filter props from subformulas
     in distinctSubCount <= upperBoundCount && distinctSubCount >= lowerBoundCount
