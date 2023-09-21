@@ -2,6 +2,7 @@ import SetOrd
 import Test.QuickCheck
 import Data.List (sort, intercalate,nub)
 import Data.Text.Internal.Fusion.Size (lowerBound)
+import Data.List.NonEmpty (NonEmpty(..), toList)
 
 type Name = Int
 
@@ -37,9 +38,15 @@ listOf2 gen = do
   k <- choose (2,2)
   vectorOf k gen
 
+listOf2 :: Gen a -> Gen [a]
+listOf2 gen = sized $ \n ->
+  do k <- chooseInt (2,2 `max` n)
+     vectorOf k gen
+
 instance Arbitrary Form where
     arbitrary = do
         name <- arbitrary
+        -- noEmpty <- getNonEmpty <$> arbitrary 
         frequency
             [ (5, return (Prop name))
             , (1, Neg <$> arbitrary)
