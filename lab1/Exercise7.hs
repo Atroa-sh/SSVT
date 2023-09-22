@@ -62,7 +62,7 @@ instance Arbitrary Form where
             , (1, Equiv <$> arbitrary <*> arbitrary)
             ]
 
-test = Cnj [Neg (Prop 1), Prop 2]
+test = Impl (Prop 0) (Cnj [Prop 0, Prop 0])
 
 
 setToList :: Set a -> [a] --helper function so length can be applied to "set"
@@ -121,6 +121,12 @@ nsub = length . sub2
 -- in order to check recursive implementation of nsub we need to create another generator that doesnt test only list of 2 elements for Cnj and Dsj
 -- but test 2 to n elements in list, therefore we create another generator, but since we cant specify which generator should quickcheck use we are limited in testing
 -- we need to replace old generator with new one, however elements from 2 to n take too long to compute so we try 2 to 5
+{- listOfn :: Gen a -> Gen [a]
+listOfn gen = do
+  n <- getSize
+  k <- choose (3,5) 
+  vectorOf k gen
+-}
 
 prop_nsub :: Form -> Bool 
 prop_nsub form =          
@@ -131,25 +137,13 @@ prop_nsub form =
         lowerBoundCount = length $ filter isProp subformulas -- filter props from subformulas
     in distinctSubCount <= upperBoundCount && distinctSubCount >= lowerBoundCount --checks if number of subformulas is in boundaries
 
-
-{- listOfn :: Gen a -> Gen [a]
-listOfn gen = do
-  n <- getSize
-  k <- choose (3,5) 
-  vectorOf k gen
-
-instance Arbitrary Form where
-    arbitrary = do
-        name <- arbitrary
-        frequency
-            [ (5, return (Prop name))
-            , (1, Neg <$> arbitrary)
-            , (1, Cnj <$> listOf2 arbitrary)
-            , (1, Dsj <$> listOf2 arbitrary)
-            , (1, Impl <$> arbitrary <*> arbitrary)
-            , (1, Equiv <$> arbitrary <*> arbitrary)
-            ]
- -}
+prop_subEqualsNsub :: Form -> Bool  -- we add another test to check if sub equals nsub 
+prop_subEqualsNsub form =
+    let subformulasSub = sub form
+        subformulasNsub = list2set (sub2 form) -- we have to use helper function of list2set to compare nsub because its list
+    in subformulasSub == subformulasNsub    
+-- we could also convert sub to list but since it creates list from end to start nsub wouldnt match sub -> nsub = [Impl (Prop 0) (Cnj [Prop 0, Prop 0]),Prop 0,Cnj [Prop 0, Prop 0]] =/= sub = [Prop 0,Cnj [Prop 0, Prop 0],Impl (Prop 0) (Cnj [Prop 0, Prop 0])]
+-- thats why we convert it to set so we dont need to care about positioning of elements
 
  -- time spent 6 hours
 
@@ -158,3 +152,4 @@ main = do
     quickCheck $ prop_upperBoundCheck
     quickCheck $ prop_inBoundaries
     quickCheck $ prop_nsub
+    quickCheck $ prop_subEqualsNsub
