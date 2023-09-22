@@ -211,14 +211,14 @@ cnf f = cnf' (nnf f)
 
 {-
 cnf is also a nnf form. We can call nnf first to reduce cnf to only necessary functions.
-It doesn't matter if the input is in nnf form already as multiple executionns of nnf will leave same result as just one
+It doesn't matter if the input is in nnf form already as multiple executions of nnf will leave same result as just one
 dist function stands for distribution law. Foldr allows us to accumulate result of distribution in cases when we have a
 disjunction of more than 2 forms.
 
 The algorithm doesn't outputs the simplest possible form. This is for a couple of reasons
 1. It was not a requirement
-2. Unsymplified form makes it easier to see the work of the algorythm
-3. Because of the dalay caused by Exercise4 we were running low on time
+2. Unsimplified form makes it easier to see the work of the algorithm
+3. Because of the delay caused by Exercise4 we were running low on time
 
 Time spent 2,5h
 -}
