@@ -19,12 +19,16 @@ import Test.QuickCheck
 --which is |P(A)| = 2 * |P(A - {a})| = 2 * 2^k = 2^(k+1).
 --by mathematical induction, we have proved that if |A| = k + 1, then |P(A)| = 2^(k+1).
 
-subsequences :: [a] -> [[a]]
+subsequences :: [a] -> [[a]]   --subsequences [1..3] provides output of [[1,2,3],[1,2],[1,3],[1],[2,3],[2],[3],[]]
 subsequences [] = [[]]
 subsequences (x:xs) =  [x:ps | ps <- subsequences xs] ++ subsequences xs 
 --[r | ps <- subsequences xs, r <- [(x:ps),ps]] 
 -- map (x:) (subsequences xs) ++ subsequences xs     
 --i tried different approaches for better performance but didnt help that much
+
+--length (subsequences [1..3]) 8
+--length (subsequences [1..4]) 16
+--length (subsequences [1..5]) 32
 
 prop_powerSet_test :: [Int] -> Bool
 prop_powerSet_test xs = length (subsequences xs) == 2 ^ length(xs) 
@@ -43,5 +47,9 @@ prop_powerSet_test xs = length (subsequences xs) == 2 ^ length(xs)
 -- we are checking a mathematical fact that the size of the power set of finite set is 2^n where n is the size of set
 -- its about confirming mathematical property related to sets and power sets 
 
---time spent 3 hours
---verboseCheck prop_powerSet_test
+--time spent 5 hours
+
+-- main :: IO ()
+main = do
+    verboseCheck $ prop_powerSet_test
+    quickCheck $ prop_powerSet_test
