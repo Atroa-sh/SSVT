@@ -17,3 +17,4 @@ List of factors that result in invalid IOLTS's:
 
 -- Checks if the given IOLTS is valid
 validateLTS :: IOLTS -> Bool
+validateLTS = undefined
