@@ -6,6 +6,9 @@ import Test.QuickCheck
 
 {-
  An input-output transition system is a labelled transition system with inputs and outputs ⟨Q, LI , LU , T, q0⟩ where all input actions are enabled in any reachable state.
+ A labelled transition system with inputs and outputs is a 5-tuple ⟨Q,LI,LU,T,q0⟩ where
+    – ⟨Q, LI ∪ LU , T, q0⟩ is a labelled transition system in LTS(LI ∪ LU );
+    – LI and LU are countable sets of input labels and output labels, respectively, which are disjoint: LI ∩ LU = ∅.
 -}
 
 {-
@@ -20,48 +23,54 @@ import Test.QuickCheck
     - Transitions with non-existing states
 -}
 
--- Checks if the given IOLTS is valid
 validateLTS :: IOLTS -> Bool
 validateLTS (states, inputs, outputs, transitions, initial) =
-    validateStates states &&
-    validateLabels inputs &&
-    validateLabels outputs &&
-    validateTransitions states transitions &&
-    validateInitial states initial &&
-    validateTransitionsToExistingStates states transitions &&
-    validateTransitionsFromExistingStates states transitions &&
-    validateTransitionsWithExistingLabels inputs outputs transitions &&
-    validateTransitionsWithExistingStates states transitions
+    null (inputs `intersect` outputs) &&
+    validateTransitions (states, inputs, outputs, transitions, initial)
+
+validateTransitions :: IOLTS -> Bool
+validateTransitions (states, inputs, outputs, transitions, initial) =
+    createLTS transitions == (states, labels, transitions, initial) where labels = inputs ++ outputs
 
 -- Checks if the states in the given IOLTS are unique
-validateStates :: [State] -> Bool
-validateStates states = length states == length (nub states)
+prop_validateStates :: IOLTS -> Bool
+prop_validateStates (states, inputs, outputs, transitions, initial) = length states == length (nub states)
 
 -- Checks if the labels in the given IOLTS are unique
-validateLabels :: [Label] -> Bool
-validateLabels labels = length labels == length (nub labels)
+prop_validateLabels :: IOLTS -> Bool
+prop_validateLabels (states, inputs, outputs, transitions, initial) = length (inputs ++ outputs) == length (nub (inputs ++ outputs))
 
 -- Checks if the transitions in the given IOLTS are unique
-validateTransitions :: [State] -> [LabeledTransition] -> Bool
-validateTransitions states transitions = length transitions == length (nub transitions)
+prop_validateTransitions :: IOLTS -> Bool
+prop_validateTransitions (states, inputs, outputs, transitions, initial) = length transitions == length (nub transitions)
 
 -- Checks if the initial state in the given IOLTS is in the list of states
-validateInitial :: [State] -> State -> Bool
-validateInitial states initial = initial `elem` states
+prop_validateInitial :: IOLTS -> Bool
+prop_validateInitial (states, inputs, outputs, transitions, initial) = initial `elem` states
 
 -- Checks if the transitions in the given IOLTS are to existing states
-validateTransitionsToExistingStates :: [State] -> [LabeledTransition] -> Bool
-validateTransitionsToExistingStates states = all (\(_, _, to) -> to `elem` states)
+prop_validateTransitionsToExistingStates ::  IOLTS -> Bool
+prop_validateTransitionsToExistingStates (states, inputs, outputs, transitions, initial) = all (\(_, _, to) -> to `elem` states) transitions
 
 -- Checks if the transitions in the given IOLTS are from existing states
-validateTransitionsFromExistingStates :: [State] -> [LabeledTransition] -> Bool
-validateTransitionsFromExistingStates states = all (\(from, _, _) -> from `elem` states)
+prop_validateTransitionsFromExistingStates :: IOLTS -> Bool
+prop_validateTransitionsFromExistingStates (states, inputs, outputs, transitions, initial) = all (\(from, _, _) -> from `elem` states) transitions
 
 -- Checks if the transitions in the given IOLTS are with existing labels
-validateTransitionsWithExistingLabels :: [Label] -> [Label] -> [LabeledTransition] -> Bool
-validateTransitionsWithExistingLabels inputs outputs = all (\(_, label, _) -> label `elem` labels)
+prop_validateTransitionsWithExistingLabels :: IOLTS -> Bool
+prop_validateTransitionsWithExistingLabels (states, inputs, outputs, transitions, initial) = all (\(_, label, _) -> label `elem` labels) transitions
     where labels = inputs ++ outputs
 
 -- Checks if the transitions in the given IOLTS are with existing states
-validateTransitionsWithExistingStates :: [State] -> [LabeledTransition] -> Bool
-validateTransitionsWithExistingStates states = all (\(from, _, to) -> from `elem` states && to `elem` states)
+prop_validateTransitionsWithExistingStates :: IOLTS -> Bool
+prop_validateTransitionsWithExistingStates (states, inputs, outputs, transitions, intinal) = all (\(from, _, to) -> from `elem` states && to `elem` states) transitions
+
+test_all_props :: IOLTS -> Bool
+test_all_props iolts = prop_validateStates iolts &&
+                       prop_validateLabels iolts &&
+                       prop_validateTransitions iolts &&
+                       prop_validateInitial iolts &&
+                       prop_validateTransitionsToExistingStates iolts &&
+                       prop_validateTransitionsFromExistingStates iolts &&
+                       prop_validateTransitionsWithExistingLabels iolts &&
+                       prop_validateTransitionsWithExistingStates iolts
