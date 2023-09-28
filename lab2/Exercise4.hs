@@ -9,10 +9,11 @@ import LTS
 
 after :: IOLTS -> Trace -> [State]
 after (states, inputs, outputs, transitions, initial) trace = after' (states, inputs, outputs, transitions, initial) trace initial
-after' (states, inputs, outputs, transitions, initial) [] current = [current]
-after' (states, inputs, outputs, transitions, initial) (current_transition:rest) current =
-    concatMap (after' (states, inputs, outputs, transitions, initial) rest) next_states
+after' iolts [] current = [current]
+after' iolts (current_transition:rest) current =
+    concatMap (after' iolts rest) next_states
   where
+    (_, _, _, transitions, _) = iolts
     next_states = nextStates' transitions current current_transition
 
 nextStates' :: [LabeledTransition]->State-> Label -> [State]
