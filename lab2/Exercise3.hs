@@ -6,18 +6,26 @@ import Data.List
 import Test.QuickCheck
 import LTS
 
--- Generate all the Straces of the given IOLTS
-straces :: IOLTS -> [Trace]
-straces (states, inputs, outputs, transitions, initial) = do
-    tracesFromState (states, inputs, outputs, transitions, initial) initial
+qStates :: IOLTS -> [State]
+qStates (states, _, outputs, transitions, _) = filter (`notElem` nonQuiescentStates) states
+    where nonQuiescentStates = nub $ map (\(x, _, _) -> x) (filter (\(_,labels,_) -> labels `elem` outputs) transitions)
 
--- Generate all the traces from the given state
-tracesFromState :: IOLTS -> State -> [Trace]
-tracesFromState (states, inputs, outputs, transitions, initial) state = do
-    let transitionsFromState = filter (\(from, _, _) -> from == state) transitions
-    if null transitionsFromState
-        then [[]]
-        else do
-            (from, label, to) <- transitionsFromState
-            traces <- tracesFromState (states, inputs, outputs, transitions, initial) to
-            return (label : traces)
+ourNextTransitions:: [State] -> [LabeledTransition] -> State -> [(State,Label)]
+ourNextTransitions quiescentStates lt q0 =  [(s',l) | (s,l,s')<- lt , s == q0] ++ deltas
+    where deltas = [(q0, delta) | q0 `elem` quiescentStates]
+
+ourFollowingTransitions:: [State] -> [LabeledTransition] -> [State] -> [Label] -> [([State],[Label])]
+ourFollowingTransitions q lt st ls = [(s:st,ls++[l])| (s,l)<-ourNextTransitions q lt (head st)]
+
+straces':: [LabeledTransition] -> [([State],[Label])] -> [State] -> [([State],[Label])]
+straces' lt [] q = []
+straces' lt pairs q = pairs ++ straces' lt next q
+    where next = concatMap (uncurry $ ourFollowingTransitions q lt) pairs
+
+-- Tau unfiltered implementation
+-- straces :: IOLTS -> [Trace]
+-- straces (q, li, lu, lt, q0) = nub $ map snd (straces' lt [([q0],[])] (qStates (q, li, lu, lt, q0)))
+
+-- Tau filtered implementation
+straces :: IOLTS -> [Trace]
+straces (q, li, lu, lt, q0) = nub $ map (filter (/= tau)) (nub $ map snd (straces' lt [([q0],[])] (qStates (q, li, lu, lt, q0))))
