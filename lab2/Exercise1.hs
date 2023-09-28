@@ -1,3 +1,5 @@
+{- Time spent: 2 hours -}
+
 module Exercise1 where
 
 import Data.List
@@ -64,8 +66,8 @@ prop_validateTransitionsWithExistingLabels (states, inputs, outputs, transitions
 prop_validateTransitionsWithExistingStates :: IOLTS -> Bool
 prop_validateTransitionsWithExistingStates (states, inputs, outputs, transitions, intinal) = all (\(from, _, to) -> from `elem` states && to `elem` states) transitions
 
-test_all_props :: IOLTS -> Bool
-test_all_props iolts = prop_validateStates iolts &&
+prop_allProps :: IOLTS -> Bool
+prop_allProps iolts = prop_validateStates iolts &&
                        prop_validateLabels iolts &&
                        prop_validateTransitions iolts &&
                        prop_validateInitial iolts &&
@@ -73,3 +75,10 @@ test_all_props iolts = prop_validateStates iolts &&
                        prop_validateTransitionsFromExistingStates iolts &&
                        prop_validateTransitionsWithExistingLabels iolts &&
                        prop_validateTransitionsWithExistingStates iolts
+
+{-
+ Test report
+ As given before, there are multiple props that can be tested. If these props are false, the IOLTS is invalid.
+ Testing with the given IOLTS in the LTS.hs file gives us that all IOLTS are valid.
+ Each of the tests, combined into the property allProps, give valid for each of the given IOLTS.
+-}
