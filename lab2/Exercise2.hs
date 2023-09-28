@@ -11,7 +11,8 @@ import LTS
 randomLabel :: Gen String
 randomLabel = do
     firstChar <- elements "?!"
-    restOfStr <- listOf1 $ elements ['a'..'z']
+    size <- choose (5, 20)
+    restOfStr <- fmap nub $ vectorOf size $ elements ['a'..'z']
     return (firstChar : restOfStr)
 
 -- Generate a random transition using QuickCheck
@@ -31,7 +32,7 @@ ltsGen = do
 -- Generate a list of at least two elements using QuickCheck
 listOf2 :: Gen a -> Gen [a]
 listOf2 gen = do
-    n <- choose (2, 5)
+    n <- choose (2, 100)
     vectorOf n gen
 
 main :: IO ()
