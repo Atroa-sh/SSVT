@@ -12,6 +12,7 @@ randomString = listOf1 (elements ['a'..'z'])
 -- Generate a random transition using QuickCheck
 -- Label sometimes returns a empty string which false the test
 -- I do not know how to fix this
+-- Also need to makeLabels with make label instead of randomString
 transitionGen :: Gen (State, Label, State)
 transitionGen = do
     from <- arbitrary `suchThat` (> 0)

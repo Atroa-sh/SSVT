@@ -5,7 +5,6 @@ import LTS
 import Test.QuickCheck
 
 {-
- An input-output transition system is a labelled transition system with inputs and outputs ⟨Q, LI , LU , T, q0⟩ where all input actions are enabled in any reachable state.
  A labelled transition system with inputs and outputs is a 5-tuple ⟨Q,LI,LU,T,q0⟩ where
     – ⟨Q, LI ∪ LU , T, q0⟩ is a labelled transition system in LTS(LI ∪ LU );
     – LI and LU are countable sets of input labels and output labels, respectively, which are disjoint: LI ∩ LU = ∅.
