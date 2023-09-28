@@ -30,7 +30,7 @@ validateLTS (states, inputs, outputs, transitions, initial) =
 
 validateTransitions :: IOLTS -> Bool
 validateTransitions (states, inputs, outputs, transitions, initial) =
-    createLTS transitions == (states, labels, transitions, initial) where labels = inputs ++ outputs
+    createLTS transitions == (states, labels, transitions, initial) where labels = outputs ++ inputs
 
 -- Checks if the states in the given IOLTS are unique
 prop_validateStates :: IOLTS -> Bool
