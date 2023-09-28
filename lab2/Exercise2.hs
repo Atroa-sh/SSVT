@@ -23,10 +23,23 @@ transitionGen = do
     to <- arbitrary `suchThat` (> 0)
     return (from, label, to)
 
+-- Generate a random transition without loops using QuickCheck
+looplessTransitionGen :: Gen (State, Label, State)
+looplessTransitionGen = do
+    from <- arbitrary `suchThat` (> 0)
+    label <- randomLabel `suchThat` (\x -> x /= tau && x /= delta && x /= "")
+    to <- arbitrary `suchThat` (> 0)
+    if to <= from then looplessTransitionGen else return (from, label, to)
+
 -- Generate a random IOLTS using QuickCheck
 ltsGen :: Gen IOLTS
 ltsGen = do
     transitions <- listOf2 transitionGen
+    return (createIOLTS transitions)
+
+looplessLtsGen :: Gen IOLTS
+looplessLtsGen = do
+    transitions <- listOf2 looplessTransitionGen
     return (createIOLTS transitions)
 
 -- Generate a list of at least two elements using QuickCheck
