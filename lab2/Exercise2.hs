@@ -1,3 +1,5 @@
+{- Time spent: 2 hours -}
+
 module Exercise2 where
 
 import Exercise1
@@ -5,27 +7,42 @@ import Data.List
 import Test.QuickCheck
 import LTS
 
--- Generate a random string using QuickCheck
-randomString :: Gen String
-randomString = listOf1 (elements ['a'..'z'])
+-- Generate a random string that starts with '?' or '!'
+randomLabel :: Gen String
+randomLabel = do
+    firstChar <- elements "?!"
+    restOfStr <- listOf1 $ elements ['a'..'z']
+    return (firstChar : restOfStr)
 
 -- Generate a random transition using QuickCheck
--- Label sometimes returns a empty string which false the test
--- I do not know how to fix this
--- Also need to makeLabels with make label instead of randomString
 transitionGen :: Gen (State, Label, State)
 transitionGen = do
     from <- arbitrary `suchThat` (> 0)
-    label <- randomString `suchThat` (\x -> x /= tau && x /= delta && x /= "")
+    label <- randomLabel `suchThat` (\x -> x /= tau && x /= delta && x /= "")
     to <- arbitrary `suchThat` (> 0)
     return (from, label, to)
 
 -- Generate a random IOLTS using QuickCheck
 ltsGen :: Gen IOLTS
 ltsGen = do
-    transitions <- listOf1 transitionGen
+    transitions <- listOf2 transitionGen
     return (createIOLTS transitions)
+
+-- Generate a list of at least two elements using QuickCheck
+listOf2 :: Gen a -> Gen [a]
+listOf2 gen = do
+    n <- choose (2, 5)
+    vectorOf n gen
 
 main :: IO ()
 main = do
     quickCheck $ forAll ltsGen validateLTS
+    quickCheck $ forAll ltsGen prop_validateStates
+    quickCheck $ forAll ltsGen prop_validateLabels
+    quickCheck $ forAll ltsGen prop_validateTransitions
+    quickCheck $ forAll ltsGen prop_validateInitial
+    quickCheck $ forAll ltsGen prop_validateTransitionsToExistingStates
+    quickCheck $ forAll ltsGen prop_validateTransitionsFromExistingStates
+    quickCheck $ forAll ltsGen prop_validateTransitionsWithExistingLabels
+    quickCheck $ forAll ltsGen prop_validateTransitionsWithExistingStates
+

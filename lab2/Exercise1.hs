@@ -27,11 +27,10 @@ import Test.QuickCheck
 validateLTS :: IOLTS -> Bool
 validateLTS (states, inputs, outputs, transitions, initial) =
     null (inputs `intersect` outputs) &&
-    validateTransitions (states, inputs, outputs, transitions, initial)
+    validateAllElementsInList transitions (states, inputs ++ outputs, transitions, initial)
 
-validateTransitions :: IOLTS -> Bool
-validateTransitions (states, inputs, outputs, transitions, initial) =
-    createLTS transitions == (states, labels, transitions, initial) where labels = outputs ++ inputs
+validateAllElementsInList :: [LabeledTransition] -> LTS -> Bool
+validateAllElementsInList list (states, labels, transitions, initial) = all (\(from, label, to) -> (from, label, to) `elem` list) transitions
 
 -- Checks if the states in the given IOLTS are unique
 prop_validateStates :: IOLTS -> Bool
