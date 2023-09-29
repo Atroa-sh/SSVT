@@ -16,19 +16,21 @@ randomLabel = do
     return (firstChar : restOfStr)
 
 -- Generate a random transition using QuickCheck
+-- The states are between 1 and 10 because we want to limit the amount of nodes that are not connected to the initial state.
+-- Because we are not generating very big IOLTS's, we want as much connectivity as possible.
 transitionGen :: Gen (State, Label, State)
 transitionGen = do
-    from <- arbitrary `suchThat` (> 0)
+    from <- arbitrary `suchThat` (\x -> x > 0 && x <= 10)
     label <- randomLabel `suchThat` (\x -> x /= tau && x /= delta && x /= "")
-    to <- arbitrary `suchThat` (> 0)
+    to <- arbitrary `suchThat` (\x -> x > 0 && x <= 10)
     return (from, label, to)
 
 -- Generate a random transition without loops using QuickCheck
 looplessTransitionGen :: Gen (State, Label, State)
 looplessTransitionGen = do
-    from <- arbitrary `suchThat` (> 0)
+    from <- arbitrary `suchThat` (\x -> x > 0 && x <= 10)
     label <- randomLabel `suchThat` (\x -> x /= tau && x /= delta && x /= "")
-    to <- arbitrary `suchThat` (> 0)
+    to <- arbitrary `suchThat` (\x -> x > 0 && x <= 10)
     if to <= from then looplessTransitionGen else return (from, label, to)
 
 -- Generate a random IOLTS using QuickCheck
