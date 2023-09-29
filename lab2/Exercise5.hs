@@ -73,8 +73,9 @@ prop_testIOLTSwithDoorsPrint iolts door = do
         ", but door generates: " ++ show newState ++ ", " ++ newOutput
       printMismatches rest
 
-prop_testIOLTSwithDoors :: IOLTS2 -> (State -> Label -> (State, Label)) -> Bool
-prop_testIOLTSwithDoors iolts door = unsafePerformIO $ prop_testIOLTSwithDoorsPrint iolts door
+
+testLTSAgainstSUT :: IOLTS2 -> (State -> Label -> (State, Label)) -> Bool
+testLTSAgainstSUT iolts door = unsafePerformIO $ prop_testIOLTSwithDoorsPrint iolts door
 
 
 --time spent 8 hours
@@ -82,35 +83,35 @@ prop_testIOLTSwithDoors iolts door = unsafePerformIO $ prop_testIOLTSwithDoorsPr
 main :: IO ()
 main = do
     putStrLn "Test 1"
-    let result1 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl1
+    let result1 = testLTSAgainstSUT doorImpl1IOLTS doorImpl1
     putStrLn $ "Test 1 " ++ if result1 then "passed" else "failed"
     
     putStrLn "Test 2"
-    let result2 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl2
+    let result2 = testLTSAgainstSUT doorImpl1IOLTS doorImpl2
     putStrLn $ "Test 2 " ++ if result2 then "passed" else "failed"
     
     putStrLn "Test 3"
-    let result3 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl3
+    let result3 = testLTSAgainstSUT doorImpl1IOLTS doorImpl3
     putStrLn $ "Test 3 " ++ if result3 then "passed" else "failed"
     
     putStrLn "Test 4"                                          -- test4 throws exception because door label is not correct which means in our function we cannot find corresponding transition for IOLTS
-    let result4 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl2
+    let result4 = testLTSAgainstSUT doorImpl1IOLTS doorImpl2
     putStrLn $ "Test 2 " ++ if result2 then "passed" else "failed"
     
 
     putStrLn "Test 5"
-    let result5 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl5
+    let result5 = testLTSAgainstSUT doorImpl1IOLTS doorImpl5
     putStrLn $ "Test 5 " ++ if result5 then "passed" else "failed"
     
     putStrLn "Test 6"
-    let result6 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl6
+    let result6 = testLTSAgainstSUT doorImpl1IOLTS doorImpl6
     putStrLn $ "Test 6 " ++ if result6 then "passed" else "failed"
     
     putStrLn "Test 7"
-    let result7 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl7
+    let result7 = testLTSAgainstSUT doorImpl1IOLTS doorImpl7
     putStrLn $ "Test 7 " ++ if result7 then "passed" else "failed"
     
     putStrLn "Test 8"
-    let result8 = prop_testIOLTSwithDoors doorImpl1IOLTS doorImpl8
+    let result8 = testLTSAgainstSUT doorImpl1IOLTS doorImpl8
     putStrLn $ "Test 8 " ++ if result8 then "passed" else "failed"
 
