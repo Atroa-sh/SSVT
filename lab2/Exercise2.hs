@@ -45,7 +45,7 @@ looplessLtsGen = do
 -- Generate a list of at least two elements using QuickCheck
 listOf2 :: Gen a -> Gen [a]
 listOf2 gen = do
-    n <- choose (2, 100)
+    n <- choose (2, 10)
     vectorOf n gen
 
 main :: IO ()
