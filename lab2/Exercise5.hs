@@ -61,8 +61,10 @@ testIOLTSwithDoorsPrint iolts door = do
         ", but door generates: " ++ show newState ++ ", " ++ newOutput
       printMismatches rest
 
+
 testLTSAgainstSUT :: IOLTS2 -> (State -> Label -> (State, Label)) -> Bool
 testLTSAgainstSUT iolts door = unsafePerformIO $ testIOLTSwithDoorsPrint iolts door
+
 
 main :: IO ()
 main = do
@@ -99,6 +101,7 @@ main = do
     putStrLn "Test 8"
     let result8 = testLTSAgainstSUT doorImpl1IOLTS doorImpl8
     putStrLn $ "Test 8 " ++ if result8 then "passed\n" else "failed\n"
+
 
 {-
  Bug description
