@@ -33,10 +33,26 @@ determineSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [
 determineSurvivors n = determineSurvivors' n []
 
 determineSurvivors' :: Integer -> [[Bool]] -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO [[Bool]]
-determineSurvivors' n current _ _ _
-    | n <= 0 = return current
 determineSurvivors' n current props func mutators = do
-    rand <- generate (chooseInteger (1, 10))
-    let gen = map (\mutator -> mutate' mutator props func rand) mutators
-    results <- mapM generate gen
-    determineSurvivors' (n-genericLength mutators) (results++current) props func mutators
+        rand <- generate (chooseInteger (1, 10))
+        mutations <- generate $ getMutations n mutators func rand
+        let gen = map (\mutant -> propertyExecutor' props mutant rand) mutations
+        mapM generate gen
+
+-- Define what it means for a property to be a subset of another property given both of their outcomes.
+-- That way we can double loop over all the property outcomes
+
+-- These are the cases where we would write down the second input as subset of the first, so we want to remember the first input as a minimal property.
+isSubOrEquiv :: [Bool] -> [Bool] -> Bool
+isSubOrEquiv prop1 prop2 = prop1 == prop2
+    -- Loop over the elements in both lists:
+        -- If prop1 element is false && prop2 element is true -> Continue
+        -- If prop1 element is false && prop2 element is false -> Continue
+        -- If prop1 element is true && prop2 element is true -> Continue
+        -- If prop1 element is true && prop2 element is false -> Break
+
+determineSubsets :: [[Bool]] -> IO [[Bool]]
+determineSubsets prop = do
+    let allProps = transpose prop
+    return $ map (\y -> map (`isSubOrEquiv` y) allProps) allProps
+

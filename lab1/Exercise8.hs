@@ -23,7 +23,7 @@ subSlices (x:xs) = [x] : map (x:) (subSlices xs)
 
 -- Helper function to check if the sum of a list is a prime
 prop_sumIsPrime :: [Integer] -> Bool
-prop_sumIsPrime n = prime $ sum n
+prop_sumIsPrime n = prime $ product n + 1
 
 -- Function that iterates over all lists of a list and returns all lists
 -- that are counterexamples
@@ -35,4 +35,4 @@ counterExamples :: [([Integer], Integer)]
 counterExamples =
     let slices = subSlices primes
         counterExample = allCounterExamples slices
-    in zip counterExample (map sum counterExample)
+    in zip counterExample (map (\x -> product x +1) counterExample)
