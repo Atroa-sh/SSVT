@@ -22,7 +22,7 @@ countSurvivors :: Integer -> Integer -> [[Integer] -> Integer -> Property] -> (I
 countSurvivors' 0 current props func mutators = current
 countSurvivors' n current props func mutators = do
     gen = map (\mutator -> mutate' mutator MultiplicationTable.multiplicationTableProps MultiplicationTable.multiplicationTable 5) mutators
-     
+    --mapM generate gen gives us [[False,False,False,False,False],[False,True,False,True,True],[False,False,False,False,False]]
     survivors = if orConcat (map () mutators)
     return countSurvivors' (n-1 survivors props func mutators)
 
