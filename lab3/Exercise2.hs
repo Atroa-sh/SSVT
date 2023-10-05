@@ -21,15 +21,17 @@ countSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Inte
 countSurvivors n props func mutators = countSurvivors' n 0 props func mutators
 
 countSurvivors' :: Integer -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO Integer
-countSurvivors' 0 current _ _ _ = return current
+countSurvivors' n current _ _ _ 
+    | n <= 0 = return current
 countSurvivors' n current props func mutators = do
-    let gen = map (\mutator -> mutate' mutator props func 5) mutators
+    rand <- generate (chooseInt (1, 10))
+    let gen = map (\mutator -> mutate' mutator props func (toInteger $ rand)) mutators
     --mapM generate gen gives us [[False,False,False,False,False],[False,True,False,True,True],[False,False,False,False,False]]
     let tmp = mapM generate gen
     results <- tmp
     trace (show results) $ return results
     let survivors = foldl (\i v -> if v then i + 1 else i) 0 (map orConcat results)
-    countSurvivors' (n-1) (survivors+current) props func mutators
+    countSurvivors' (n-(toInteger $ length mutators)) (survivors+current) props func mutators
 
 orConcat :: [Bool] -> Bool
 orConcat [] = False
