@@ -3,10 +3,12 @@ module Exercise2 where
 import Exercise1
 import Data.List
 import Mutation
+import Debug.Trace
 import Test.QuickCheck
+import MultiplicationTable
 import FitSpec
 
-countSurvivors :: Integer -> [[Integer] -> Integer -> Property] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> Integer
+countSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO Integer
 -- countSurvivors n props func = sum $ map (\x -> if x then 1 else 0)
 -- countSurvivors n props func mutators = do
 --     -- Generate N amount of mutated lists
@@ -16,15 +18,18 @@ countSurvivors :: Integer -> [[Integer] -> Integer -> Property] -> (Integer -> [
 
 --     -- Count how many mutatedInputs mapped on the function do not fulfill property
 --     -- return that value
-countSurvivors n props func mutators = countSurvivors n 0 props func mutators
+countSurvivors n props func mutators = countSurvivors' n 0 props func mutators
 
-countSurvivors :: Integer -> Integer -> [[Integer] -> Integer -> Property] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> Integer
-countSurvivors' 0 current props func mutators = current
+countSurvivors' :: Integer -> Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO Integer
+countSurvivors' 0 current _ _ _ = return current
 countSurvivors' n current props func mutators = do
-    gen = map (\mutator -> mutate' mutator MultiplicationTable.multiplicationTableProps MultiplicationTable.multiplicationTable 5) mutators
+    let gen = map (\mutator -> mutate' mutator props func 5) mutators
     --mapM generate gen gives us [[False,False,False,False,False],[False,True,False,True,True],[False,False,False,False,False]]
-    survivors = if orConcat (map () mutators)
-    return countSurvivors' (n-1 survivors props func mutators)
+    let tmp = mapM generate gen
+    results <- tmp
+    trace (show results) $ return results
+    let survivors = foldl (\i v -> if v then i + 1 else i) 0 (map orConcat results)
+    countSurvivors' (n-1) (survivors+current) props func mutators
 
 orConcat :: [Bool] -> Bool
 orConcat [] = False
