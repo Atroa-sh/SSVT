@@ -17,13 +17,17 @@ minimalPropertySubsets _ _ = undefined
 -- To make sure that all the properties are tested with the same mutants,
 -- we need to generate one set of mutants and remember it for the entire execution of the recursive process.
 
+getListOfMutators :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Gen [Integer]]
+getListOfMutators muts n
+    | n > 0 = genericTake n (muts ++ getListOfMutators muts (n - fromIntegral (length muts)))
+    | otherwise = []
+
 -- Generate a list of n mutants given a list of mutators, a FUT, and an input for the FUT.
 getMutations :: Integer -> [[Integer] -> Gen [Integer]] -> (Integer -> [Integer]) -> Integer -> Gen [[Integer]]
 getMutations n muts fut input = do
-    -- rand <- generate (chooseInteger (1, 10))
     let output = fut input
-    -- let n = n - length muts
-    return (getMutations (n - length muts) muts fut input) ++ mapM (\x -> x output) muts
+    let listOfMutators = getListOfMutators muts n
+    mapM (\x -> x output) listOfMutators
 
 determineSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO [[Bool]]
 determineSurvivors n = determineSurvivors' n []
@@ -35,5 +39,4 @@ determineSurvivors' n current props func mutators = do
     rand <- generate (chooseInteger (1, 10))
     let gen = map (\mutator -> mutate' mutator props func rand) mutators
     results <- mapM generate gen
-    -- let survivors = foldl (\i v -> if v then i + 1 else i) 0 (map or results)
     determineSurvivors' (n-genericLength mutators) (results++current) props func mutators
