@@ -17,6 +17,7 @@ areSetsEquivalent props1 props2 fut muts n input =
     | props1 == props2 = True
 areSetsEquivalent props1 props2 fut muts n input = do
     let mutants = getMutations n muts fut input
+    -- TODO we need to modify those calls below to make it work
     let res1 = determineSurvivors props1 fut mutants
     let res2 = determineSurvivors props2 fut mutants
     return res1 == res2
@@ -28,6 +29,7 @@ isSetImplication props1 props2 fut muts n input =
     | props1 == props2 = True
 isSetImplication props1 props2 fut muts n input = do
     let mutants = getMutations n muts fut input
+    -- TODO we need to modify those calls below to make it work
     let res1 = determineSurvivors props1 fut mutants
     let res2 = determineSurvivors props2 fut mutants
     -- TODO basically we need to check if every single "False" from res1 exists in res2. If yes return true else false
