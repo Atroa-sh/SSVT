@@ -1,4 +1,4 @@
-{- Time spent: 30 minutes -}
+{- Time spent: 1 hour -}
 
 module Exercise4 where
 
@@ -10,10 +10,15 @@ import Mutation
 import MultiplicationTable
 
 -- This function calculates the strenght of a set of properties.
--- The strength is calculated by dividing the number of killed mutants by the total number of mutants.
+-- Each property is individually tested on request of the TA, it was not completely clear from the assignment.
 -- The function takes the same arguments as countSurvivors, but returns a Float instead of an Integer.
--- This is done because we need the amount of mutants, the set of properties, the function to test it on and the mutants that we want to test.
-strength :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]] -> IO Float
+strength :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]] -> IO [Float]
 strength n props func mutators = do
-    survivors <- countSurvivors n props func mutators
+    mapM (\prop -> strength' n prop func mutators) props
+
+-- This function calculates the strength of one property.
+-- The strength is calculated by dividing the number of killed mutants by the total number of mutants.
+strength' :: Integer -> ([Integer] -> Integer -> Bool) -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]] -> IO Float
+strength' n prop func mutators = do
+    survivors <- countSurvivors n [prop] func mutators
     return $ (fromIntegral (n-survivors) / fromIntegral n) * 100
