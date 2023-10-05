@@ -56,5 +56,8 @@ ghci> countSurvivors 4000 MultiplicationTable.multiplicationTableProps Multiplic
 ghci> countSurvivors 4000 MultiplicationTable.multiplicationTableProps MultiplicationTable.multiplicationTable mutators
 1578
 
+those examples were generated without prop_firstElementIsInput in MultiplicationTable.multiplicationTableProps as it can 
+cause exception
+
 Time spent: around 5h of the entire team's time 💀
 -}
