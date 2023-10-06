@@ -5,17 +5,15 @@ import Test.QuickCheck
 import Mutation
 import MultiplicationTable
 
--- Implement a function that calculates the minimal property subsets given a function under test and a set of properties
-minimalPropertySubsets :: (Integer -> [Integer]) -> [[Integer] -> Integer -> Bool] -> [[Integer] -> Integer -> Bool]
-minimalPropertySubsets _ _ = undefined
+-- This is the main function of this exercise.
+-- By running it with a number of mutants, a list of properties, a function and a list of mutators it will return the index of the most minimal property.
+-- This index is equal to the index of the property in the list of properties.
+minimalPropertySubsets :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO Int
+minimalPropertySubsets n props func mutators = do
+    survivors <- determineSurvivors n props func mutators
+    determineSubsets survivors
 
--- In order to do this, we need to be able to keep track of what mutants are being killed / not being killed by every property.
--- Then we can compare the killing performance of every property in the set of properties to filter the properties
--- that are not minimal properties
-
--- To make sure that all the properties are tested with the same mutants,
--- we need to generate one set of mutants and remember it for the entire execution of the recursive process.
-
+-- Helper function to get a list of n mutators given a list of mutators and a number n.
 getListOfMutators :: [[Integer] -> Gen [Integer]] -> Integer -> [[Integer] -> Gen [Integer]]
 getListOfMutators muts n
     | n > 0 = genericTake n (muts ++ getListOfMutators muts (n - fromIntegral (length muts)))
@@ -28,9 +26,11 @@ getMutations n muts fut input = do
     let listOfMutators = getListOfMutators muts n
     mapM (\x -> x output) listOfMutators
 
+-- Helper function to execute a property given a list of properties, a mutant and an input for the FUT.
 determineSurvivors :: Integer -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO [[Bool]]
 determineSurvivors n = determineSurvivors' n []
 
+-- Helper function to execute a property given a list of properties, a mutant and an input for the FUT.
 determineSurvivors' :: Integer -> [[Bool]] -> [[Integer] -> Integer -> Bool] -> (Integer -> [Integer]) -> [[Integer] -> Gen [Integer]]-> IO [[Bool]]
 determineSurvivors' n current props func mutators = do
         rand <- generate (chooseInteger (1, 10))
@@ -38,20 +38,22 @@ determineSurvivors' n current props func mutators = do
         let gen = map (\mutant -> propertyExecutor' props mutant rand) mutations
         mapM generate gen
 
--- Define what it means for a property to be a subset of another property given both of their outcomes.
--- That way we can double loop over all the property outcomes
-
--- These are the cases where we would write down the second input as subset of the first, so we want to remember the first input as a minimal property.
+-- Helper function to check if a property is a subset or equal to another property.
+-- If prop1 element is false && prop2 element is true -> Continue
+-- If prop1 element is false && prop2 element is false -> Continue
+-- If prop1 element is true && prop2 element is true -> Continue
+-- If prop1 element is true && prop2 element is false -> Break
 isSubOrEquiv :: [Bool] -> [Bool] -> Bool
-isSubOrEquiv prop1 prop2 = prop1 == prop2
-    -- Loop over the elements in both lists:
-        -- If prop1 element is false && prop2 element is true -> Continue
-        -- If prop1 element is false && prop2 element is false -> Continue
-        -- If prop1 element is true && prop2 element is true -> Continue
-        -- If prop1 element is true && prop2 element is false -> Break
+isSubOrEquiv prop1 prop2 = all (\(x, y) -> not x && y || not (x && not y)) (zip prop1 prop2)
 
-determineSubsets :: [[Bool]] -> IO [[Bool]]
+-- Helper function to determine the most minimal property given a list of properties.
+determineSubsets :: [[Bool]] -> IO Int
 determineSubsets prop = do
     let allProps = transpose prop
-    return $ map (\y -> map (`isSubOrEquiv` y) allProps) allProps
+    let results = map (\y -> map (`isSubOrEquiv` y) allProps) allProps
+    -- Return the index of the list which has the most False values in it, which is the most minimal property
+    let maxIndex = case elemIndex (maximum $ zipWith (curry (length . filter not . snd)) [1..] results) (zipWith (curry (length . filter not . snd)) [1..] results) of
+                        Just i -> i
+                        Nothing -> error "No maximum element found"
+    return $ maxIndex + 1
 
