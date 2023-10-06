@@ -1,4 +1,3 @@
-{-# LANGUAGE BlockArguments #-}
 module Exercise3 where
 
 import Data.List
