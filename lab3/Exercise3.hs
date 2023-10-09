@@ -5,6 +5,17 @@ import Test.QuickCheck
 import Mutation
 import MultiplicationTable
 
+{--
+    Time Spent: 10 hours
+
+    The approach we took was to rewrite the function we made for exercise 2 to output
+    the list of outputs of every porperty and mutation combination. This way
+    we can use this output to compare the outputs of two properties. We can then see
+    whether a single property is a subset of another porperty based on the outputs
+    of the mutations. In order to do this we had to make sure that all properties make
+    use of the same mutations when the determineSurvivors function is executed.
+--}
+
 -- This is the main function of this exercise.
 -- By running it with a number of mutants, a list of properties, a function and a list of mutators it will return the index of the most minimal property.
 -- This index is equal to the index of the property in the list of properties.
