@@ -21,3 +21,4 @@ isSerial [] _ = True
 isSerial (x:xs) rel = elem x (map fst rel) && isSerial xs rel
 
 
+

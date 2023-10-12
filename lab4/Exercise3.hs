@@ -7,7 +7,6 @@ import System.Random
 import Test.QuickCheck
 import SetOrd
 import Exercise1
-import Exercise2
 
 -- Suppose we implement binary relations as list of pairs, Haskell type [(a,a)] . Assume the following definition:
 type Rel a = [(a,a)]
