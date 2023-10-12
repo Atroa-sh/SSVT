@@ -63,8 +63,7 @@ prop_rangeSameAsDomain dom rel =
         rangep = sort (rmdups range)
     in if isSerial dom rel then (domainp == rangep) else True
 
-
-
+-- Add property for checking whether the amount of relations in the set is larger or equal to the amount of items in the domain.
 
 -- prop_rangeSameAsDomain domain rel = subSet (list2set (map (snd rel) domain)) && subSet (list2set (domain (map snd rel)))
 
