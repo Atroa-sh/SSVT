@@ -15,21 +15,68 @@ import Exercise1
 
 type Rel a = [(a,a)]
 
--- Check if a relation is serial
+-- Check if a relation is serial and check if elements of the rel are in the domain.
 isSerial :: Eq a => [a] -> Rel a -> Bool
 isSerial [] _ = True
-isSerial (x:xs) rel = elem x (map fst rel) && isSerial xs rel
+isSerial list rel = usesFullDomain list rel && and (isInDomain list rel)
+
+-- Checks if a relation uses the full domain
+-- This needs to be true for a serial relation
+usesFullDomain :: Eq a => [a] -> Rel a -> Bool
+usesFullDomain [] _ = True
+usesFullDomain (x:xs) rel = elem x (map fst rel) && usesFullDomain xs rel
+
+-- Check if all elements in the relation are in a domain
+-- This needs to be true for a serial relation
+isInDomain :: Eq a => [a] -> Rel a -> [Bool]
+isInDomain [] _ = [True]
+isInDomain list xs = map (\(a, b) -> a `elem` list && b `elem` list) xs
 
 -- Test with QuickCheck properties
 
--- Function to check if a relation is transitive
+-- Function to check if a relation is transitive[(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)]
 prop_isTransitive :: Eq a => Rel a -> Bool
 prop_isTransitive [] = True
 prop_isTransitive rel = all (\(x, y) -> all (\(a, b) -> y /= a || (x, b) `elem` rel) rel) rel
 
+-- Define your domain list
+dom :: [Int]
+dom = [1, 2, 3, 4, 5]
+
+-- Generate a tuple where the first element comes from the domain list
+tupleGenerator :: Arbitrary b => [a] -> Gen (a, b)
+tupleGenerator domain = do
+    element <- elements domain
+    secondElement <- arbitrary
+    return (element, secondElement)
+
+-- Generate a list of tuples
+listOfTuplesGenerator :: Arbitrary b => [a] -> Gen [(a, b)]
+listOfTuplesGenerator domain = do
+    n <- choose (0, length domain)
+    vectorOf n (tupleGenerator domain)
+
+main :: IO ()
+main = do
+    let numberOfTuplesToGenerate = 10
+    generatedTuples <- generate $ listOfTuplesGenerator dom
+    print (generatedTuples :: [(Int,Int)])
+
+
+rmdups :: (Ord a) => [a] -> [a]
+rmdups l = map head (group (sort l))
 -- Check if the range of a relation is the same as the domain of the relation
-prop_rangeSameAsDomain :: Eq a => [a] -> Rel a -> Bool
-prop_rangeSameAsDomain = undefined
+prop_rangeSameAsDomain :: Ord a => [a] -> Rel a -> Bool
+prop_rangeSameAsDomain [] _ = True
+prop_rangeSameAsDomain dom rel =
+    let range = [snd x | x <- rel]
+        domainp = sort (rmdups dom)
+        rangep = sort (rmdups range)
+    in if isSerial dom rel then (domainp == rangep) else True
+
+
+
+
 -- prop_rangeSameAsDomain domain rel = subSet (list2set (map (snd rel) domain)) && subSet (list2set (domain (map snd rel)))
 
 {-
