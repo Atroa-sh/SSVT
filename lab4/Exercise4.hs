@@ -62,7 +62,6 @@ prop_rangeSameAsDomain dom rel =
         rangep = sort (rmdups range)
     in if isSerial dom rel then (domainp == rangep) else True
 
-prop_isFirstElement
 
 
 
