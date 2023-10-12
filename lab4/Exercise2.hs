@@ -46,10 +46,28 @@ prop_unionSet set1 set2 = subSet set1 (setUnion set1 set2) && subSet set2 (setUn
 prop_differenceSet :: (Ord a) => Set a -> Set a -> Bool
 prop_differenceSet set1 set2 = subSet (setDifference set1 set2) set1
 
--- Test report
--- *Exercise2> quickCheck (prop_intersectSet :: Set Int -> Set Int -> Bool)
--- +++ OK, passed 100 tests.
--- *Exercise2> quickCheck (prop_unionSet :: Set Int -> Set Int -> Bool)
--- +++ OK, passed 100 tests.
--- *Exercise2> quickCheck (prop_differenceSet :: Set Int -> Set Int -> Bool)
--- +++ OK, passed 100 tests.
+-- Main function to run all tests
+main :: IO ()
+main = do
+    quickCheck (prop_intersectSet :: Set Int -> Set Int -> Bool)
+    quickCheck (prop_unionSet :: Set Int -> Set Int -> Bool)
+    quickCheck (prop_differenceSet :: Set Int -> Set Int -> Bool)
+
+{- Test report
+ For each of the created function one property is tested.
+ The first property prop_intersectSet tests the setIntersection function.
+ It does this by checking if the intersection of two sets is a subset of both sets.
+ This is important because by definition the intersection of two sets should only contain elements that are in both sets.
+ The second property prop_unionSet tests the setUnion function.
+ It does this by checking if both sets are subsets of the union of the two sets.
+ This is important because by definition the union of two sets should contain all elements that are in either of the two sets.
+ The third property prop_differenceSet tests the setDifference function.
+ It does this by checking if the difference of two sets is a subset of the first set.
+ This is important because by definition the difference of two sets should contain all elements that are in the first set but not in the second set.
+ All properties are tested with QuickCheck.
+ To test the properties, run the following command in ghci:
+ ghci> quickCheck (prop_intersectSet :: Set Int -> Set Int -> Bool)
+ ghci> quickCheck (prop_unionSet :: Set Int -> Set Int -> Bool)
+ ghci> quickCheck (prop_differenceSet :: Set Int -> Set Int -> Bool)
+ This can also be done by calling the main function.
+-}
