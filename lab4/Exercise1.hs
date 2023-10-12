@@ -12,21 +12,19 @@ import SetOrd
 -- (Deliverables: two random test generators, indication of time spent.)
 
 -- Random generator from scratch
-randomSet :: IO (Set Int)
+-- Why choose 20 for maximum length of set.
+randomSet :: Gen (Set Int)
 randomSet = do
-    n <- getRandomInt 10
+    n <- choose (0, 20)
     xs <- randomIntList n
     return (list2set xs)
 
-randomIntList :: Int -> IO [Int]
+randomIntList :: Int -> Gen [Int]
 randomIntList 0 = return []
 randomIntList n = do
-    x <- getRandomInt 10
+    x <- choose (0, n)
     xs <- randomIntList (n-1)
     return (x:xs)
-
-getRandomInt :: Int -> IO Int
-getRandomInt n = getStdRandom (randomR (0,n))
 
 -- Random generator using QuickCheck
 instance (Arbitrary a, Ord a) => Arbitrary (Set a) where
