@@ -15,14 +15,26 @@ import Exercise1
 
 type Rel a = [(a,a)]
 
--- Check if a relation is serial
+-- Check if a relation is serial and check if elements of the rel are in the domain.
 isSerial :: Eq a => [a] -> Rel a -> Bool
 isSerial [] _ = True
-isSerial (x:xs) rel = elem x (map fst rel) && isSerial xs rel
+isSerial list rel = usesFullDomain list rel && and (isInDomain list rel)
+
+-- Checks if a relation uses the full domain
+-- This needs to be true for a serial relation
+usesFullDomain :: Eq a => [a] -> Rel a -> Bool
+usesFullDomain [] _ = True
+usesFullDomain (x:xs) rel = elem x (map fst rel) && usesFullDomain xs rel
+
+-- Check if all elements in the relation are in a domain
+-- This needs to be true for a serial relation
+isInDomain :: Eq a => [a] -> Rel a -> [Bool]
+isInDomain [] _ = [True]
+isInDomain list xs = map (\(a, b) -> a `elem` list && b `elem` list) xs
 
 -- Test with QuickCheck properties
 
--- Function to check if a relation is transitive
+-- Function to check if a relation is transitive[(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)]
 prop_isTransitive :: Eq a => Rel a -> Bool
 prop_isTransitive [] = True
 prop_isTransitive rel = all (\(x, y) -> all (\(a, b) -> y /= a || (x, b) `elem` rel) rel) rel
