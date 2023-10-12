@@ -12,7 +12,7 @@ import SetOrd
 -- (Deliverables: two random test generators, indication of time spent.)
 
 -- Random generator from scratch
--- Why choose 20 for maximum length of set.
+-- We chose a maximum of 20 elements in the set, because otherwise the generator may take too long.
 randomSet :: Gen (Set Int)
 randomSet = do
     n <- choose (0, 20)
