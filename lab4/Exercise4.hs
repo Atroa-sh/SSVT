@@ -27,9 +27,6 @@ prop_isTransitive :: Eq a => Rel a -> Bool
 prop_isTransitive [] = True
 prop_isTransitive rel = all (\(x, y) -> all (\(a, b) -> y /= a || (x, b) `elem` rel) rel) rel
 
--- prop_isTransitive :: Eq a => [a] -> Rel a -> Bool
--- prop_isTransitive domain rel = undefined
-
 -- Check if the range of a relation is the same as the domain of the relation
 prop_rangeSameAsDomain :: Eq a => [a] -> Rel a -> Bool
 prop_rangeSameAsDomain = undefined
