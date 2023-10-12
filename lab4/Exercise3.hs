@@ -15,4 +15,4 @@ type Rel a = [(a,a)]
 -- E.g., symClos [(1,2),(2,3),(3,4)] should give [(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)]
 symClos :: Ord a => Rel a -> Rel a
 symClos [] = []
-symClos ((x,y):xs) = (x,y):(y,x):symClos xs
+symClos ((x,y):xs) = nub $ (x,y):(y,x):symClos xs
