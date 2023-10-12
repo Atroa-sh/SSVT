@@ -32,17 +32,6 @@ isInDomain :: Eq a => [a] -> Rel a -> [Bool]
 isInDomain [] _ = [True]
 isInDomain list xs = map (\(a, b) -> a `elem` list && b `elem` list) xs
 
--- Test with QuickCheck properties
-
--- Function to check if a relation is transitive[(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)]
-prop_isTransitive :: Eq a => Rel a -> Bool
-prop_isTransitive [] = True
-prop_isTransitive rel = all (\(x, y) -> all (\(a, b) -> y /= a || (x, b) `elem` rel) rel) rel
-
--- Define your domain list
-dom :: [Int]
-dom = [1, 2, 3, 4, 5]
-
 -- Generate a tuple where the first element comes from the domain list
 tupleGenerator :: Arbitrary b => [a] -> Gen (a, b)
 tupleGenerator domain = do
@@ -59,7 +48,7 @@ listOfTuplesGenerator domain = do
 main :: IO ()
 main = do
     let numberOfTuplesToGenerate = 10
-    generatedTuples <- generate $ listOfTuplesGenerator dom
+    generatedTuples <- generate $ listOfTuplesGenerator [1..5]
     print (generatedTuples :: [(Int,Int)])
 
 
