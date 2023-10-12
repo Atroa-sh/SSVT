@@ -27,4 +27,6 @@ ghci> trClos (symClos x)
 [(1,1),(1,2),(1,3),(2,1),(2,2),(2,3),(2,4),(3,1),(3,2),(3,3),(3,4),(4,2),(4,3),(4,4)]
 
 If the initial set contains all reflexive tuples both calls produce the same output.
+
+Indication of time spent: 20 mins
 -}
