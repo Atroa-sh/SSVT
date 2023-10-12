@@ -1,3 +1,5 @@
+-- Time spent: 15 minutes
+
 module Exercise1 where
 
 import Data.List
@@ -8,7 +10,6 @@ import SetOrd
 -- Implement a random data generator for the datatype Set Int , where Set is as defined in SetOrd.hs.
 -- First do this from scratch, next give a version that uses QuickCheck to random test this datatype.
 -- (Deliverables: two random test generators, indication of time spent.)
--- Time spent: 15 minutes
 
 -- Random generator from scratch
 randomSet :: IO (Set Int)
