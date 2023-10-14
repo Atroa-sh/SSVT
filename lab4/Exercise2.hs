@@ -8,7 +8,7 @@ import Test.QuickCheck
 import SetOrd
 import Exercise1
 
--- Set intersection
+-- Function to generate the intersection of two Sets
 setIntersection :: Ord a => Set a -> Set a -> Set a
 setIntersection (Set []) _ = Set []
 setIntersection _ (Set []) = Set []
@@ -16,7 +16,7 @@ setIntersection (Set (x:xs)) set
     | inSet x set = insertSet x (setIntersection (Set xs) set)
     | otherwise = setIntersection (Set xs) set
 
--- Set union
+-- Function to generate the union of two Sets
 setUnion :: Ord a => Set a -> Set a -> Set a
 setUnion (Set []) set = set
 setUnion set (Set []) = set
@@ -24,8 +24,8 @@ setUnion (Set (x:xs)) set
     | inSet x set = setUnion (Set xs) set
     | otherwise = insertSet x (setUnion (Set xs) set)
 
--- Set difference
--- Source of the defenition: https://www.splashlearn.com/math-vocabulary/difference-of-sets#:~:text=The%20difference%20between%20the%20two,set%20B%20from%20set%20A.
+-- Function to generate the difference of two Sets
+-- Source of the definition: https://www.splashlearn.com/math-vocabulary/difference-of-sets#:~:text=The%20difference%20between%20the%20two,set%20B%20from%20set%20A.
 setDifference :: Ord a => Set a -> Set a -> Set a
 setDifference (Set []) _ = Set []
 setDifference set (Set []) = set
@@ -34,7 +34,7 @@ setDifference (Set (x:xs)) set
     | otherwise = insertSet x (setDifference (Set xs) set)
 
 -- Test properties
--- Test for setIntersection: idempotence, commutativity, associativity, distributivity, empty set, subset of inputs
+-- Tests for setIntersection: idempotence, commutativity, associativity, distributivity, empty set, subset of inputs
 prop_idempotenceIntersect :: (Ord a) => Set a -> Bool
 prop_idempotenceIntersect set = setIntersection set set == set
 
@@ -56,8 +56,7 @@ prop_emptySetIntersect set = setIntersection set (Set []) == Set []
 prop_isSubsetOfInputsIntersect :: (Ord a) => Set a -> Set a -> Bool
 prop_isSubsetOfInputsIntersect set1 set2 = subSet (setIntersection set1 set2) set1 && subSet (setIntersection set1 set2) set2
 
-
--- Test for Union: idempotence, commutativity, associativity, distributivity, empty set, subset of output
+-- Tests for Union: idempotence, commutativity, associativity, distributivity, empty set, subset of output
 prop_idempotenceUnion :: (Ord a) => Set a -> Bool
 prop_idempotenceUnion set = setUnion set set == set
 
