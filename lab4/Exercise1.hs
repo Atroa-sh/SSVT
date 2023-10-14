@@ -7,10 +7,6 @@ import System.Random
 import Test.QuickCheck
 import SetOrd
 
--- Implement a random data generator for the datatype Set Int , where Set is as defined in SetOrd.hs.
--- First do this from scratch, next give a version that uses QuickCheck to random test this datatype.
--- (Deliverables: two random test generators, indication of time spent.)
-
 -- Random generator from scratch
 -- We chose a maximum of 20 elements in the set, because otherwise the generator may take too long.
 randomSet :: Gen (Set Int)
