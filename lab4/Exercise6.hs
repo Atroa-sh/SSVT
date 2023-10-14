@@ -50,9 +50,9 @@ prop_symClosPreservesOriginal rel = do
 
 -- Function to check if a relation is transitive
 -- TrClos should always be transitive as it is the transitive closure of a relation
-prop_isTransitive :: Ord a => Rel a -> Bool
-prop_isTransitive [] = True
-prop_isTransitive rel = do
+prop_trClosIsTransitive :: Ord a => Rel a -> Bool
+prop_trClosIsTransitive [] = True
+prop_trClosIsTransitive rel = do
     let tr = trClos rel
     all (\(x, y) -> all (\(a, b) -> y /= a || (x, b) `elem` tr) tr) tr
 
@@ -97,7 +97,7 @@ main = do
     quickCheck (prop_symClosUnion :: Rel Int -> Bool)
 
     putStrLn "Testing properties for trClos"
-    quickCheck (prop_isTransitive :: Rel Int -> Bool)
+    quickCheck (prop_trClosIsTransitive :: Rel Int -> Bool)
     quickCheck (prop_trClosIdempotence :: Rel Int -> Bool)
     quickCheck (prop_trClosIntersection :: Rel Int -> Bool)
     quickCheck (prop_trClosPreservesOriginal :: Rel Int -> Bool)
