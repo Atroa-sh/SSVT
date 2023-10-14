@@ -6,13 +6,6 @@ import Test.QuickCheck
 import SetOrd
 import Exercise1
 
--- A relation R is serial on a domain A if for any x ∈ A there is an y ∈ A such that xRy.
--- Suppose relations are represented as lists of pairs:
--- type Rel a = [(a,a)]
--- 1. Write a function for checking whether a relation is serial:
--- isSerial :: Eq a => [a] -> Rel a > Bool
--- For example on the domain [1..5] only [(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)] should be true
-
 type Rel a = [(a,a)]
 
 -- Check if a relation is serial and check if elements of the rel are in the domain.
@@ -33,39 +26,41 @@ isInDomain [] _ = [True]
 isInDomain list xs = map (\(a, b) -> a `elem` list && b `elem` list) xs
 
 -- Generate a tuple where the first element comes from the domain list
-tupleGenerator :: Arbitrary b => [a] -> Gen (a, b)
-tupleGenerator domain = do
+genTuple :: [a] -> Gen (a, a)
+genTuple domain = do
     element <- elements domain
-    secondElement <- arbitrary
+    secondElement <- elements domain
     return (element, secondElement)
 
--- Generate a list of tuples
-listOfTuplesGenerator :: Arbitrary b => [a] -> Gen [(a, b)]
-listOfTuplesGenerator domain = do
+-- Generate a list of tuples using the genTuple function
+genListOfTuples :: [a] -> Gen [(a, a)]
+genListOfTuples domain = do
     n <- choose (0, length domain)
-    vectorOf n (tupleGenerator domain)
+    vectorOf n (genTuple domain)
 
-main :: IO ()
-main = do
-    let numberOfTuplesToGenerate = 10
-    generatedTuples <- generate $ listOfTuplesGenerator [1..5]
-    print (generatedTuples :: [(Int,Int)])
+-- Generate a list of tuples which is a serial relation
+genSerialRelations :: (Arbitrary a, Ord a) => [a] -> Gen (Rel a)
+genSerialRelations domain = do
+    rel <- genListOfTuples domain
+    if isSerial domain rel then return rel else genSerialRelations domain
 
-
-rmdups :: (Ord a) => [a] -> [a]
-rmdups l = map head (group (sort l))
 -- Check if the range of a relation is the same as the domain of the relation
 prop_rangeSameAsDomain :: Ord a => [a] -> Rel a -> Bool
 prop_rangeSameAsDomain [] _ = True
 prop_rangeSameAsDomain dom rel =
-    let range = [snd x | x <- rel]
-        domainp = sort (rmdups dom)
-        rangep = sort (rmdups range)
-    in if isSerial dom rel then (domainp == rangep) else True
+    let range = nub (sort (map fst rel))
+    in sort dom == sort range
 
 -- Add property for checking whether the amount of relations in the set is larger or equal to the amount of items in the domain.
+prop_lengthOfRelIsLargerOrEqual :: Ord a => [a] -> Rel a -> Bool
+prop_lengthOfRelIsLargerOrEqual [] _ = True
+prop_lengthOfRelIsLargerOrEqual dom rel = not (isSerial dom rel) || (length rel >= length dom)
 
--- prop_rangeSameAsDomain domain rel = subSet (list2set (map (snd rel) domain)) && subSet (list2set (domain (map snd rel)))
+main :: IO ()
+main = do
+    let domain = [0..10] :: [Int]
+    quickCheck (forAll (genSerialRelations domain) (prop_rangeSameAsDomain domain))
+    quickCheck (forAll (genSerialRelations domain) (prop_lengthOfRelIsLargerOrEqual domain))
 
 {-
 Consider the relation R = {(x, y) | x = y(mod n)}, where (mod n) is the modulo function
@@ -84,5 +79,4 @@ Assume that R is not serial, which means that there exists an element x in the s
 This means that there does not exist an element y in the same set such that x = y(mod n).
 However, this contradicts the definition of modular arithmetic, which states that every integer can be expressed as a multiple of the modulus plus a remainder.
 Therefore, R must be serial.
-
 -}
